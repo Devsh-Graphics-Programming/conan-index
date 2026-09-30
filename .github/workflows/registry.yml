@@ -52,6 +52,7 @@ jobs:
           import os
 
           class Smoke(ConanFile):
+              settings = "os", "arch"
               package_type = "header-library"
 
               def package(self):
