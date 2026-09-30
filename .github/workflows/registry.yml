@@ -20,13 +20,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      CONAN_HOME: ${{ runner.temp }}/conan
+      CONAN_HOME: ${{ github.workspace }}/.conan2
       CONAN_NON_INTERACTIVE: '1'
       REF: registry-smoke/0.1
     defaults:
       run:
         shell: bash
-        working-directory: ${{ runner.temp }}
     steps:
       - uses: actions/setup-python@v5
         with:
