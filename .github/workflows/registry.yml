@@ -1,0 +1,85 @@
+name: Check registry
+
+on:
+  workflow_dispatch:
+    inputs:
+      upload:
+        description: Upload a test package, download it and clean up
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: registry-smoke
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      CONAN_HOME: ${{ runner.temp }}/conan
+      CONAN_NON_INTERACTIVE: '1'
+      REF: registry-smoke/0.1
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ runner.temp }}
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check public access
+        run: |
+          python -m pip install conan==2.32.0
+          curl --fail --silent --show-error --max-time 30 https://conan.devsh.eu/healthz
+          conan remote add devsh https://conan.devsh.eu
+          conan list '*' -r=devsh
+      - name: Upload a test package
+        id: upload
+        if: inputs.upload
+        env:
+          CONAN_LOGIN_USERNAME_DEVSH: ${{ github.actor }}
+          CONAN_PASSWORD_DEVSH: ${{ github.token }}
+        run: |
+          conan remote login devsh "$CONAN_LOGIN_USERNAME_DEVSH"
+          conan profile detect
+          mkdir recipe
+          cat > recipe/conanfile.py <<'PY'
+          from conan import ConanFile
+          from conan.tools.files import save
+          import os
+
+          class Smoke(ConanFile):
+              package_type = "header-library"
+
+              def package(self):
+                  save(self, os.path.join(self.package_folder, "smoke.txt"), "registry works")
+          PY
+          conan create recipe --name=registry-smoke --version="${REF#*/}"
+          conan upload "$REF" -r=devsh --confirm --check
+      - name: Download without credentials
+        if: inputs.upload
+        run: |
+          conan remote logout devsh
+          conan remove "$REF" --confirm
+          for attempt in 1 2 3 4 5
+          do
+            if conan install --requires="$REF" -r=devsh --build=never --deployer=full_deploy --output-folder=downloaded
+            then
+              test "$(find downloaded -name smoke.txt -exec cat {} \;)" = 'registry works'
+              exit 0
+            fi
+            sleep "$((attempt * 2))"
+          done
+          exit 1
+      - name: Remove the test package
+        if: always() && inputs.upload && steps.upload.outcome != 'skipped'
+        env:
+          CONAN_LOGIN_USERNAME_DEVSH: ${{ github.actor }}
+          CONAN_PASSWORD_DEVSH: ${{ github.token }}
+        run: |
+          conan remote login devsh "$CONAN_LOGIN_USERNAME_DEVSH"
+          conan remove "$REF" -r=devsh --confirm
