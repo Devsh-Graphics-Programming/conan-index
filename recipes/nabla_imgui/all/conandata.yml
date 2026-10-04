@@ -1,0 +1,17 @@
+sources:
+  "1.91.8":
+    imgui:
+      url: "https://github.com/ocornut/imgui/archive/v1.91.8.tar.gz"
+      sha256: "db3a2e02bfd6c269adf0968950573053d002f40bdfb9ef2e4a90bce804b0f286"
+    nabla_imconfig:
+      url: "https://raw.githubusercontent.com/Devsh-Graphics-Programming/imgui/a29e9dba3012eca9f80bdc4c39ca61a1df8e7175/nabla_imconfig.h"
+      sha256: "7f871b1976a765d45fba4caf2b067b14bf705d3b7f83191c2c166e1e9d8e5180"
+    imgui_test_engine:
+      url: "https://github.com/ocornut/imgui_test_engine/archive/v1.91.8.tar.gz"
+      sha256: "bdfc31cb819bd6e4df2d5da0316edf92b1011d1c4046293aafd9ae14106570e2"
+    implot:
+      url: "https://github.com/epezent/implot/archive/47522f47054d33178e7defa780042bd2a06b09f9.tar.gz"
+      sha256: "843dd5bd4122e5bd85e382c31634df8f5ad0c218939ff0631527ef2527618862"
+    imguizmo:
+      url: "https://github.com/Devsh-Graphics-Programming/ImGuizmo/archive/b10e91756d32395f5c1fefd417899b657ed7cb88.tar.gz"
+      sha256: "222008fce8a9346c8f08e34ecc626b2f34091cec1bdbd7c1e6e572cc6756414f"
