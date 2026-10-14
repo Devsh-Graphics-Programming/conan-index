@@ -9,7 +9,6 @@ required_conan_version = ">=2.32.0"
 
 class NablaVolkConan(ConanFile):
     name = "nabla_volk"
-    version = "1.4.357.0"   # TODO: how to set version through config.yml?
     license = "MIT"
     homepage = "https://github.com/zeux/volk"
     url = "https://github.com/conan-io/conan-center-index"
