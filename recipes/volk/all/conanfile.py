@@ -44,7 +44,9 @@ class VolkConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires(f"vulkan-headers/{self.version}", transitive_headers=True)
+        devsh_version_suffix = self.version.find("-devsh")
+        vulkan_version = self.version[:devsh_version_suffix]
+        self.requires(f"vulkan-headers/{vulkan_version}", transitive_headers=True)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
