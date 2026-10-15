@@ -7,8 +7,8 @@ from conan.tools.files import copy, download, get
 required_conan_version = ">=2.32.0"
 
 
-class NablaImguiConan(ConanFile):
-    name = "nabla_imgui"
+class ImguiConan(ConanFile):
+    name = "imgui"
     description = "Dear ImGui, Dear ImGui Test Engine, ImPlot and ImGuizmo built with Nabla's nabla_imconfig.h"
     license = ("MIT", "LicenseRef-Dear-ImGui-Test-Engine-License-1.04")
     url = "https://github.com/Devsh-Graphics-Programming/conan-index"
@@ -84,10 +84,10 @@ class NablaImguiConan(ConanFile):
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.set_property("cmake_file_name", "nabla_imgui")
+        self.cpp_info.set_property("cmake_file_name", "imgui")
 
         imgui = self.cpp_info.components["imgui"]
-        imgui.set_property("cmake_target_name", "nabla_imgui::imgui")
+        imgui.set_property("cmake_target_name", "imgui::imgui")
         imgui.libs = ["imgui"]
         imgui.includedirs = [
             "include",
@@ -104,7 +104,7 @@ class NablaImguiConan(ConanFile):
             imgui.system_libs = ["m"]
 
         implot = self.cpp_info.components["implot"]
-        implot.set_property("cmake_target_name", "nabla_imgui::implot")
+        implot.set_property("cmake_target_name", "imgui::implot")
         implot.libs = ["implot"]
         implot.includedirs = [os.path.join("include", "imgui_test_suite", "thirdparty", "implot")]
         implot.defines = ["IMPLOT_DEBUG", "IMPLOT_DLL_EXPORT"]
@@ -117,13 +117,13 @@ class NablaImguiConan(ConanFile):
         ]
 
         imtestsuite = self.cpp_info.components["imtestsuite"]
-        imtestsuite.set_property("cmake_target_name", "nabla_imgui::imtestsuite")
+        imtestsuite.set_property("cmake_target_name", "imgui::imtestsuite")
         imtestsuite.libs = ["imtestsuite"]
         imtestsuite.includedirs = list(test_engine_includedirs)
         imtestsuite.requires = ["implot"]
 
         imtestengine = self.cpp_info.components["imtestengine"]
-        imtestengine.set_property("cmake_target_name", "nabla_imgui::imtestengine")
+        imtestengine.set_property("cmake_target_name", "imgui::imtestengine")
         imtestengine.libs = ["imtestengine"]
         imtestengine.includedirs = list(test_engine_includedirs)
         imtestengine.requires = ["imtestsuite"]
@@ -133,7 +133,7 @@ class NablaImguiConan(ConanFile):
             imtestengine.system_libs = ["pthread"]
 
         imguizmo = self.cpp_info.components["imguizmo"]
-        imguizmo.set_property("cmake_target_name", "nabla_imgui::imguizmo")
+        imguizmo.set_property("cmake_target_name", "imgui::imguizmo")
         imguizmo.libs = ["imguizmo"]
         imguizmo.includedirs = [os.path.join("include", "imguizmo")]
         imguizmo.requires = ["imgui"]
