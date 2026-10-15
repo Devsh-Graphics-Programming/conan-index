@@ -7,8 +7,8 @@ import os
 required_conan_version = ">=2.32.0"
 
 
-class NablaVolkConan(ConanFile):
-    name = "nabla_volk"
+class VolkConan(ConanFile):
+    name = "volk"
     license = "MIT"
     homepage = "https://github.com/zeux/volk"
     url = "https://github.com/conan-io/conan-center-index"
@@ -95,15 +95,15 @@ class NablaVolkConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
-        self.cpp_info.set_property("cmake_file_name", "nabla_volk")
+        self.cpp_info.set_property("cmake_file_name", "volk")
 
-        self.cpp_info.components["libvolk"].set_property("cmake_target_name", "nabla_volk::volk")
+        self.cpp_info.components["libvolk"].set_property("cmake_target_name", "volk::volk")
         self.cpp_info.components["libvolk"].libs = ["volk"]
         self.cpp_info.components["libvolk"].requires = ["vulkan-headers::vulkan-headers"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["libvolk"].system_libs = ["dl"]
 
-        self.cpp_info.components["volk_headers"].set_property("cmake_target_name", "nabla_volk::volk_headers")
+        self.cpp_info.components["volk_headers"].set_property("cmake_target_name", "volk::volk_headers")
         self.cpp_info.components["volk_headers"].libs = []
         self.cpp_info.components["volk_headers"].requires = ["vulkan-headers::vulkan-headers"]
         if self.settings.os in ["Linux", "FreeBSD"]:
