@@ -1,0 +1,4 @@
+sources:
+  "3.4.14":
+    url: "https://github.com/AcademySoftwareFoundation/openexr/releases/download/v3.4.14/openexr-3.4.14.tar.gz"
+    sha256: "174d0d711d963c46eaa7cd2669d6cb1ea52579f43aa2726892f0b9554339ba6b"
