@@ -53,4 +53,5 @@ jobs:
         run: |
           conan remote login devsh "$CONAN_LOGIN_USERNAME_DEVSH"
           conan profile detect
+          conan profile update settings.compiler.cppstd=gnu20 default
           python .github/scripts/build_upload_packages.py
