@@ -18,7 +18,7 @@ if __name__ == "__main__":
         for version in recipes[name]:
             package_ref = f"{name}/{version}"
             print(f"Building recipe: {package_ref}...")
-            check_call(f"conan create --version {version} -tf \"\" -u -b missing ./recipes/{name}/all/", shell=True)
+            check_call(f"conan create --version {version} -s=\"compiler.cppstd=gnu20\" -tf \"\" -u -b missing ./recipes/{name}/all/", shell=True)
 
     if 'CONAN_UPLOAD_PACKAGES' in os.environ and os.environ['CONAN_UPLOAD_PACKAGES']:
         upload_all = False
