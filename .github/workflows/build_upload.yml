@@ -11,6 +11,10 @@ on:
         description: Upload both recipes and packages (false uploads only recipes)
         type: boolean
         default: false
+      conan_full_rebuild:
+        description: Rebuilds and uploads all packages, even if already on the remote
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -49,6 +53,7 @@ jobs:
           CONAN_PASSWORD_DEVSH: ${{ github.token }}
           CONAN_UPLOAD_PACKAGES: ${{ inputs.conan_upload_package }}
           UPLOAD_ALL: ${{ inputs.upload_all }}
+          CONAN_FULL_REBUILD: ${{ inputs.conan_full_rebuild }}
         run: |
           conan remote login devsh "$CONAN_LOGIN_USERNAME_DEVSH"
           conan profile detect
