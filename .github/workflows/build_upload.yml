@@ -52,4 +52,4 @@ jobs:
         run: |
           conan remote login devsh "$CONAN_LOGIN_USERNAME_DEVSH"
           conan profile detect
-          python .github/scripts/build_upload_packages.py
+          python .github/scripts/ci.py
