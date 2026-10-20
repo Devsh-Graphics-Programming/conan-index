@@ -1,8 +1,7 @@
-from subprocess import check_output, check_call
+from subprocess import check_call
 import os
-import string
 from pathlib import Path
-import yaml # need to pip install pyyaml
+import yaml
 
 def readYMLForVersions(recipe_dir: Path) -> list:
     with open(recipe_dir / "config.yml", "r") as f:
