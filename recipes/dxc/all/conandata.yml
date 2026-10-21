@@ -1,0 +1,4 @@
+sources:
+  "1.9.2602-devsh.1":
+    url: "https://github.com/Devsh-Graphics-Programming/DirectXShaderCompiler/archive/refs/tags/v1.9.2602-devsh.1.tar.gz"
+    sha256: "2b184a6995b9b5abd5fadb9c1ba8ae516c34c78d5daafb6a835cbf48c834f1ef"
