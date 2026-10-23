@@ -1,5 +1,4 @@
-# Add only the SDK release versions from https://github.com/KhronosGroup/SPIRV-Tools/tags for consistency
 sources:
-  "1.4.357.0":
-    url: "https://github.com/KhronosGroup/SPIRV-Tools/archive/refs/tags/vulkan-sdk-1.4.357.0.tar.gz"
-    sha256: "d31e7109b6ef3559067e53e520870eafed7c9534d00db9728814b6df03fa4a5e"
+  "1.4.363.0-devsh.1":
+    url: "https://github.com/Devsh-Graphics-Programming/SPIRV-Tools/archive/refs/tags/vulkan-sdk-1.4.363.0-devsh.1.tar.gz"
+    sha256: "716860f8d1028e38dbfb9684c1f2679a4e68ae738ff505493f97c11eb323a58e"

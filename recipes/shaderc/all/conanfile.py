@@ -43,7 +43,7 @@ class ShadercConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        spirv_version = "1.4.357.0"
+        spirv_version = "1.4.363.0-devsh.1"
         self.requires(f"glslang/{spirv_version}")
         self.requires(f"spirv-tools/{spirv_version}")
         self.requires(f"spirv-headers/{spirv_version}")
