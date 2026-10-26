@@ -3,6 +3,7 @@ import os
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, download, get
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
 
 required_conan_version = ">=2.32.0"
 
@@ -26,6 +27,7 @@ class DxcConan(ConanFile):
 
     def export_sources(self):
         copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -35,10 +37,14 @@ class DxcConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("freetype/[>2.14.1]", transitive_headers=True)
+        if self.settings.os == "Linux":
+            self.requires("directx-headers/1.619.1")
+        self.requires("spirv-headers/1.4.363.0-devsh.1")
+        self.requires("spirv-tools/1.4.363.0-devsh.1", options={"shared": False})
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True, destination="dxc")
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)

@@ -4,10 +4,6 @@ project(nabla_dxc LANGUAGES CXX)
 set(DXC_ROOT "${DXC_SOURCE_DIR}/dxc")
 set(DXC_BUILD_DIR "${DXC_ROOT}/build")
 
-get_filename_component(DXC_SPIRV_TOOLS_DIR "${DXC_ROOT}/external/SPIRV-Tools" ABSOLUTE)
-get_filename_component(DXC_SPIRV_HEADERS_DIR "${DXC_ROOT}/external/SPIRV-Headers" ABSOLUTE)
-
-set(SPIRV-Headers_SOURCE_DIR "${DXC_SPIRV_HEADERS_DIR}" CACHE INTERNAL "")
 if(WIN32)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /fp:fast")
 elseif(UNIX)
@@ -17,9 +13,12 @@ option(_NBL_ENABLE_DXC_COMPILE_TESTS_ "Enable it in order to test compilation of
 option(_NBL_DXC_COMPILE_TESTS_ENABLE_CMAKE_LOG_ "Enable more verbose log when creating DXC compile test target - only for Nabla developers!" OFF)
 set(_NBL_DXC_CT_PREFIX_CMAKE_LOG_DEBUG_ "[DXC_CT]:" CACHE INTERNAL "only for Nabla developers")
 
-option(NBL_LLVM_ENABLE_ASSERTIONS "LLVM_ENABLE_ASSERTIONS" ON)
+find_package(SPIRV-Headers REQUIRED CONFIG)
+find_package(SPIRV-Tools REQUIRED CONFIG)
+set(DXC_SPIRV_HEADERS_DIR ${SPIRV-Headers_INCLUDE_DIR}/..)
+set(DXC_SPIRV_TOOLS_DIR ${SPIRV-Tools_INCLUDE_DIR}/..)
 
-list(APPEND NBL_DXC_CMAKE_OPTIONS "-DLLVM_ENABLE_ASSERTIONS:BOOL=${NBL_LLVM_ENABLE_ASSERTIONS}")
+list(APPEND NBL_DXC_CMAKE_OPTIONS "-DLLVM_ENABLE_ASSERTIONS:BOOL=ON")
 list(APPEND NBL_DXC_CMAKE_OPTIONS "-DHLSL_OPTIONAL_PROJS_IN_DEFAULT:BOOL=OFF")
 list(APPEND NBL_DXC_CMAKE_OPTIONS "-DHLSL_ENABLE_ANALYZE:BOOL=OFF")
 list(APPEND NBL_DXC_CMAKE_OPTIONS "-DHLSL_OFFICIAL_BUILD:BOOL=OFF")
@@ -97,6 +96,7 @@ ExternalProject_Add(dxc_external
     CMAKE_ARGS       -C "${DXC_ROOT}/cmake/caches/PredefinedParams.cmake"
                      ${NBL_DXC_CMAKE_OPTIONS}
     BUILD_COMMAND    "${CMAKE_COMMAND}" --build <BINARY_DIR> --target dxcompiler --config $<CONFIG>
+	INSTALL_COMMAND  ""
     BUILD_BYPRODUCTS "${DXC_LIB_DIR}/dxcompiler.lib"
 )
 
@@ -107,5 +107,3 @@ set_target_properties(dxcompiler PROPERTIES
     IMPORTED_LOCATION "${DXC_LIB_DIR}/dxcompiler.lib"
     INTERFACE_INCLUDE_DIRECTORIES "${DXC_SOURCE_DIR}/include"
 )
-
-install(TARGETS dxcompiler ARCHIVE DESTINATION lib)
