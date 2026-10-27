@@ -5,9 +5,9 @@ set(DXC_ROOT "${DXC_SOURCE_DIR}/dxc")
 set(DXC_BUILD_DIR "${DXC_ROOT}/build")
 
 if(WIN32)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /fp:fast")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /fp:fast")
 elseif(UNIX)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffast-math")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffast-math")
 endif()
 option(_NBL_ENABLE_DXC_COMPILE_TESTS_ "Enable it in order to test compilation of Nabla shaders at build time" OFF)
 option(_NBL_DXC_COMPILE_TESTS_ENABLE_CMAKE_LOG_ "Enable more verbose log when creating DXC compile test target - only for Nabla developers!" OFF)
@@ -62,11 +62,11 @@ list(APPEND NBL_DXC_CMAKE_OPTIONS "-DDXC_SPIRV_HEADERS_DIR=${DXC_SPIRV_HEADERS_D
 list(APPEND NBL_DXC_CMAKE_OPTIONS "-DDXC_ENABLE_ETW=OFF")
 
 if(WIN32)
-	if(NOT DEFINED HLSL_AUTOCRLF)
-		list(APPEND NBL_DXC_CMAKE_OPTIONS "-DHLSL_AUTOCRLF:BOOL=ON")
-	else()
-		list(APPEND NBL_DXC_CMAKE_OPTIONS "-DHLSL_AUTOCRLF:BOOL=${HLSL_AUTOCRLF}")
-	endif()
+    if(NOT DEFINED HLSL_AUTOCRLF)
+        list(APPEND NBL_DXC_CMAKE_OPTIONS "-DHLSL_AUTOCRLF:BOOL=ON")
+    else()
+        list(APPEND NBL_DXC_CMAKE_OPTIONS "-DHLSL_AUTOCRLF:BOOL=${HLSL_AUTOCRLF}")
+    endif()
 endif()
 
 list(APPEND NBL_DXC_CMAKE_OPTIONS "-DCMAKE_MSVC_RUNTIME_LIBRARY:STATIC=MultiThreaded$<$<CONFIG:Debug>:Debug>$<$<BOOL:${COMPILER_DYNAMIC_RUNTIME}>:DLL>")
@@ -79,11 +79,11 @@ if(NOT CMAKE_GENERATOR MATCHES "Ninja*")
 endif()
 
 if(CMAKE_GENERATOR_TOOLSET)
-	list(APPEND NBL_DXC_CMAKE_OPTIONS -T "${CMAKE_GENERATOR_TOOLSET}")
+    list(APPEND NBL_DXC_CMAKE_OPTIONS -T "${CMAKE_GENERATOR_TOOLSET}")
 endif()
 
 if(CMAKE_TOOLCHAIN_FILE)
-	list(APPEND NBL_DXC_CMAKE_OPTIONS "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}")
+    list(APPEND NBL_DXC_CMAKE_OPTIONS "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}")
 endif()
 
 include(ExternalProject)
@@ -91,19 +91,23 @@ set(DXC_LIB_DIR "${DXC_BUILD_DIR}/$<CONFIG>/lib")
 
 ExternalProject_Add(dxc_external
     SOURCE_DIR       "${DXC_ROOT}"
-	BINARY_DIR		 "${DXC_BUILD_DIR}"
-	CMAKE_GENERATOR  "${CMAKE_GENERATOR}"
+    BINARY_DIR		 "${DXC_BUILD_DIR}"
+    CMAKE_GENERATOR  "${CMAKE_GENERATOR}"
     CMAKE_ARGS       -C "${DXC_ROOT}/cmake/caches/PredefinedParams.cmake"
                      ${NBL_DXC_CMAKE_OPTIONS}
     BUILD_COMMAND    "${CMAKE_COMMAND}" --build <BINARY_DIR> --target dxcompiler --config $<CONFIG>
-	INSTALL_COMMAND  ""
+    INSTALL_COMMAND  ""
     BUILD_BYPRODUCTS "${DXC_LIB_DIR}/dxcompiler.lib"
 )
 
 add_library(dxcompiler STATIC IMPORTED GLOBAL)
+set_target_properties(dxcompiler PROPERTIES
+    IMPORTED_CONFIGURATIONS             "DEBUG;RELEASE;RELWITHDEBINFO"
+    IMPORTED_LOCATION_DEBUG             "${DXC_BUILD_DIR}/Debug/lib/dxcompiler.lib"
+    IMPORTED_LOCATION_RELEASE           "${DXC_BUILD_DIR}/Release/lib/dxcompiler.lib"
+    IMPORTED_LOCATION_RELWITHDEBINFO    "${DXC_BUILD_DIR}/RelWithDebInfo/lib/dxcompiler.lib"
+    INTERFACE_INCLUDE_DIRECTORIES       "${DXC_ROOT}/include"
+)
 add_dependencies(dxcompiler dxc_external)
 
-set_target_properties(dxcompiler PROPERTIES
-    IMPORTED_LOCATION "${DXC_LIB_DIR}/dxcompiler.lib"
-    INTERFACE_INCLUDE_DIRECTORIES "${DXC_SOURCE_DIR}/include"
-)
+install(FILES $<TARGET_FILE:dxcompiler> DESTINATION lib)

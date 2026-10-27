@@ -65,6 +65,7 @@ class DxcConan(ConanFile):
         dxc = os.path.join(self.source_folder, "dxc")
 
         copy(self, "LICENSE.TXT", dxc, os.path.join(licenses, "dxc"))
+        copy(self, "*.h", dxc, os.path.join(include, "dxc"), excludes=("examples/*", "docs/*"))
 
         cmake = CMake(self)
         cmake.install()
@@ -73,6 +74,7 @@ class DxcConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "dxc")
 
         dxc = self.cpp_info.components["dxcompiler"]
-        dxc.set_property("cmake_target_name", "dxc::dxc")
+        dxc.set_property("cmake_target_name", "dxc::dxcompiler")
         dxc.libs = ["dxcompiler"]
         dxc.includedirs.append(os.path.join("include", "dxc"))
+        dxc.libdirs = ["lib"]
