@@ -1,0 +1,60 @@
+name: Build and upload to conan remote
+
+on:
+  workflow_dispatch:
+    inputs:
+      conan_upload_package:
+        description: Upload packages to the remote
+        type: boolean
+        default: false
+      upload_all:
+        description: Upload both recipes and packages (false uploads only recipes)
+        type: boolean
+        default: false
+      conan_full_rebuild:
+        description: Rebuilds and uploads all packages, even if already on the remote
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    env:
+      CONAN_HOME: ${{ github.workspace }}/.conan2
+      CONAN_NON_INTERACTIVE: '1'
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+                  
+      - name: Checkout
+        if: inputs.conan_upload_package
+        uses: actions/checkout@v6
+
+      - name: Check public access
+        run: |
+          python -m pip install conan==2.32.0
+          python -m pip install pyyaml==6.0.3
+          curl --fail --silent --show-error --max-time 30 https://conan.devsh.eu/healthz
+          conan remote add devsh https://conan.devsh.eu
+          conan list '*' -r=devsh
+
+      - name: Build and upload packages in repo
+        id: build_upload
+        if: inputs.conan_upload_package
+        env:
+          CONAN_LOGIN_USERNAME_DEVSH: ${{ github.actor }}
+          CONAN_PASSWORD_DEVSH: ${{ github.token }}
+          CONAN_UPLOAD_PACKAGES: ${{ inputs.conan_upload_package }}
+          UPLOAD_ALL: ${{ inputs.upload_all }}
+          CONAN_FULL_REBUILD: ${{ inputs.conan_full_rebuild }}
+        run: |
+          conan remote login devsh "$CONAN_LOGIN_USERNAME_DEVSH"
+          conan profile detect
+          python .github/scripts/ci.py
