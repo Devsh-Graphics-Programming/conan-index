@@ -1,0 +1,4 @@
+sources:
+  "1.46":
+    url: "https://github.com/baldurk/renderdoc/archive/refs/tags/v1.46.tar.gz"
+    sha256: "4d23c2b77f6142bfeaa1563621d7a0be394294ed750f67d472277d14aae9bbcc"
