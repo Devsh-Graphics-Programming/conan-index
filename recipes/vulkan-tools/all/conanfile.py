@@ -33,9 +33,7 @@ class VulkanToolsConan(ConanFile):
     def _patch_sources(self):
         replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "set(CMAKE_CXX_STANDARD 17)", "set(CMAKE_CXX_STANDARD 20)")
         replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "find_package(VulkanHeaders ${PROJECT_VERSION} QUIET REQUIRED CONFIG)", "find_package(VulkanHeaders REQUIRED CONFIG)")
-        # replace_in_file(self, os.path.join(self.source_folder, "vulkaninfo", "CMakeLists.txt"), "project(vulkaninfo)", "project(vulkaninfo LANGUAGES C CXX)")
         replace_in_file(self, os.path.join(self.source_folder, "vulkaninfo", "CMakeLists.txt"), "add_library(vulkaninfo OBJECT)", "add_library(vulkaninfo STATIC)")
-        # replace_in_file(self, os.path.join(self.source_folder, "vulkaninfo", "CMakeLists.txt"), "target_sources(vulkaninfo PRIVATE vulkaninfo.cpp vulkaninfo.h)", "")
         replace_in_file(self, os.path.join(self.source_folder, "vulkaninfo", "CMakeLists.txt"), "    Vulkan-Headers", "    vulkan-headers::vulkan-headers")
         replace_in_file(self, os.path.join(self.source_folder, "vulkaninfo", "CMakeLists.txt"), "install(TARGETS vulkaninfo)", "install(TARGETS vulkaninfo ARCHIVE DESTINATION lib)")
 
