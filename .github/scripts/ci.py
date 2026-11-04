@@ -3,6 +3,7 @@ import os
 import sys
 from pathlib import Path
 import yaml
+import json
 
 def readYMLForVersions(recipe_dir: Path) -> list:
     with open(recipe_dir / "config.yml", "r") as f:
@@ -10,23 +11,35 @@ def readYMLForVersions(recipe_dir: Path) -> list:
     return list(config['versions'].keys())
 
 def getRemoteAvailableRecipes() -> dict:
-    available_recipes_bytes = check_output(f"conan list -r=devsh", shell=True)
+    available_recipes_bytes = check_output(f"conan list \"*/*:*#*\" -r=devsh --format=json", shell=True)
+    available_recipes_string = available_recipes_bytes.decode('UTF-8')
+    json_begin_ix = available_recipes_string.find("{")
+    recipes_json = json.loads(available_recipes_string[json_begin_ix:])
+    devsh_remote_recipes = recipes_json["devsh"]
     available_recipes = {}
-    for entry in available_recipes_bytes.decode('UTF-8').split("\r\n"):
-        if "/" in entry:
-            name_version = entry.strip().split("/")
-            name = name_version[0]
-            version = name_version[1]
-            if name in available_recipes:
-                available_recipes[name].append(version)
-            else:
-                available_recipes[name] = [version]
+    for entry in devsh_remote_recipes:
+        name_version = entry.strip().split("/")
+        name = name_version[0]
+        version = name_version[1]
+        platforms = set()
+        for rev1 in devsh_remote_recipes[entry]["revisions"]:
+            rev = devsh_remote_recipes[entry]["revisions"][rev1]
+            for pkg in rev["packages"]:
+                setting = rev["packages"][pkg]["info"]["settings"]
+                if bool(setting):
+                    platforms.add(setting["os"])
+        if name in available_recipes:
+            available_recipes[name][version] = platforms
+        else:
+            available_recipes[name] = {version: platforms}
     return available_recipes
 
 if __name__ == "__main__":
     recipes = {}
     for package in os.listdir("./recipes"):
         recipes[package] = readYMLForVersions(Path("./recipes") / package)
+
+    platform = "Windows" if os.environ['PLATFORM'] == "windows-latest" else "Linux"
 
     do_full_rebuild = "full_rebuild" in sys.argv[1:]
     do_full_rebuild = do_full_rebuild or ('CONAN_FULL_REBUILD' in os.environ and os.environ['CONAN_FULL_REBUILD'])
@@ -35,7 +48,8 @@ if __name__ == "__main__":
         for name in available_recipes:
             if name in recipes:
                 for version in available_recipes[name]:
-                    recipes[name].remove(version)
+                    if platform in available_recipes[name][version]:
+                        recipes[name].pop(version)
 
     for name in recipes:
         for version in recipes[name]:

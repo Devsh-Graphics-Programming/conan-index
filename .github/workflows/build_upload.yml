@@ -20,14 +20,16 @@ permissions:
   contents: write
 
 jobs:
-  check:
-    runs-on: ubuntu-latest
+  build-upload:
+    name: Packages for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     env:
       CONAN_HOME: ${{ github.workspace }}/.conan2
       CONAN_NON_INTERACTIVE: '1'
-    defaults:
-      run:
-        shell: bash
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
     steps:
       - uses: actions/setup-python@v5
         with:
@@ -54,6 +56,7 @@ jobs:
           CONAN_UPLOAD_PACKAGES: ${{ inputs.conan_upload_package }}
           UPLOAD_ALL: ${{ inputs.upload_all }}
           CONAN_FULL_REBUILD: ${{ inputs.conan_full_rebuild }}
+          PLATFORM: ${{ matrix.os }}
         run: |
           conan remote login devsh "$CONAN_LOGIN_USERNAME_DEVSH"
           conan profile detect
