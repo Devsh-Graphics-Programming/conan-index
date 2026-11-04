@@ -1,0 +1,4 @@
+sources:
+  "1.4.363.0-devsh.2":
+    url: "https://github.com/Devsh-Graphics-Programming/Vulkan-Tools/archive/refs/tags/vulkan-sdk-1.4.363.0-devsh.2.tar.gz"
+    sha256: "ab4557b0c1af4c54f7770f36a1fe9d9e1a2ada81768226e5e06f10a5030be7dc"

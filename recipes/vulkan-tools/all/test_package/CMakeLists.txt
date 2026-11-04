@@ -1,0 +1,8 @@
+cmake_minimum_required(VERSION 3.15)
+project(test_package LANGUAGES C CXX)
+
+find_package(VulkanTools REQUIRED CONFIG)
+
+add_executable(${PROJECT_NAME} test_package.cpp)
+target_link_libraries(${PROJECT_NAME} PRIVATE vulkan-tools::vulkan-tools)
+set_property(TARGET ${PROJECT_NAME} PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
