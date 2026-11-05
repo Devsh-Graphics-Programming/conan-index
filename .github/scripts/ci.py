@@ -63,7 +63,7 @@ if __name__ == "__main__":
     recipe_dependency_order = []
     for name in recipes:
         for version in recipes[name]:
-            recipe_graph_string = check_output(f"conan graph build-order --order-by=recipe --version {version} ./recipes/{name}/all/ --format=json -b missing", shell=True).decode('UTF-8')
+            recipe_graph_string = check_output(f"conan graph build-order --order-by=recipe --version {version} --format=json --build=missing ./recipes/{name}/all/", shell=True).decode('UTF-8')
             graph_json = json.loads(recipe_graph_string)
             for dep_level in graph_json["order"]:
                 for dep in dep_level:
@@ -82,7 +82,7 @@ if __name__ == "__main__":
     for name, version in recipe_dependency_order:
         package_ref = f"{name}/{version}"
         print(f"Building recipe: {package_ref}...")
-        check_call(f"conan create --version {version} -s=\"compiler.cppstd={cppstd}\" -tf \"\" -u -b missing ./recipes/{name}/all/", shell=True)
+        check_call(f"conan create --version {version} -s=\"compiler.cppstd={cppstd}\" -tf \"\" -u --build=missing ./recipes/{name}/all/", shell=True)
 
     if 'CONAN_UPLOAD_PACKAGES' in os.environ and os.environ['CONAN_UPLOAD_PACKAGES']:
         upload_all = False
