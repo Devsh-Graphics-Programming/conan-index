@@ -39,11 +39,14 @@ if __name__ == "__main__":
     for package in os.listdir("./recipes"):
         recipes[package] = readYMLForVersions(Path("./recipes") / package)
 
-    platform = "Windows" if os.environ['PLATFORM'] == "windows-latest" else "Linux"
+    platIsWin = os.environ['PLATFORM'] == "windows-latest"
+    platform = "Windows" if platIsWin else "Linux"
+    cppstd = "20" if platIsWin else "gnu20"
 
     do_full_rebuild = "full_rebuild" in sys.argv[1:]
     do_full_rebuild = do_full_rebuild or ('CONAN_FULL_REBUILD' in os.environ and os.environ['CONAN_FULL_REBUILD'])
     if not do_full_rebuild:
+        # prevent recipes already available on remote being rebuilt
         available_recipes = getRemoteAvailableRecipes()
         for name in available_recipes:
             if name in recipes:
@@ -51,17 +54,26 @@ if __name__ == "__main__":
                     if platform in available_recipes[name][version]:
                         recipes[name].pop(version)
 
-    for name in recipes:
-        for version in recipes[name]:
-            package_ref = f"{name}/{version}"
-            print(f"Building recipe: {package_ref}...")
-            check_call(f"conan create --version {version} -s=\"compiler.cppstd=gnu20\" -tf \"\" -u -b missing ./recipes/{name}/all/", shell=True)
+    # TODO: reorder package create order by dependency
+    # for name in recipes:
+    #     for version in recipes[name]:
+    #         recipe_graph_string = check_output(f"conan graph build-order --order-by=recipe --version {version} ./recipes/{name}/all/ --format=json -b missing", shell=True).decode('UTF-8')
+    #         graph_json = json.loads(recipe_graph_string)
+    #         print(graph_json["order"])
+
+    # create and upload
+    upload_all = False
+    if 'UPLOAD_ALL' in os.environ and os.environ['UPLOAD_ALL'] == 'true':
+        upload_all = True
+
+    if upload_all:
+        for name in recipes:
+            for version in recipes[name]:
+                package_ref = f"{name}/{version}"
+                print(f"Building recipe: {package_ref}...")
+                check_call(f"conan create --version {version} -s=\"compiler.cppstd={cppstd}\" -tf \"\" -u -b missing ./recipes/{name}/all/", shell=True)
 
     if 'CONAN_UPLOAD_PACKAGES' in os.environ and os.environ['CONAN_UPLOAD_PACKAGES']:
-        upload_all = False
-        if 'UPLOAD_ALL' in os.environ and os.environ['UPLOAD_ALL'] == 'true':
-            upload_all = True
-
         for name in recipes:
             for version in recipes[name]:
                 package_ref = f"{name}/{version}"
