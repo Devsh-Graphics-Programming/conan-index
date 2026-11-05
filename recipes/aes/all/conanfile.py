@@ -7,8 +7,8 @@ import os
 required_conan_version = ">=2.32.0"
 
 
-class AesGladmanConan(ConanFile):
-    name = "aesGladman"
+class AesConan(ConanFile):
+    name = "aes"
     homepage = "https://github.com/Devsh-Graphics-Programming/aes"
     description = "AES code"
     license = "Copyright-BrianGladman"
@@ -40,7 +40,7 @@ class AesGladmanConan(ConanFile):
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.set_property("cmake_file_name", "aesGladman")
-        self.cpp_info.set_property("cmake_target_name", "aesGladman::aes")
-        self.cpp_info.set_property("pkg_config_name", "aesGladman")
-        self.cpp_info.components["aesGladman"].libs = ["aesGladman"]
+        self.cpp_info.set_property("cmake_file_name", "aes")
+        self.cpp_info.set_property("cmake_target_name", "aes::aes")
+        self.cpp_info.set_property("pkg_config_name", "aes")
+        self.cpp_info.components["aes"].libs = ["aes"]

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 project(test_package LANGUAGES C CXX)
 
-find_package(aesGladman REQUIRED CONFIG)
+find_package(aes REQUIRED CONFIG)
 
 add_executable(${PROJECT_NAME} test_package.cpp)
-target_link_libraries(${PROJECT_NAME} PRIVATE aesGladman::aes)
+target_link_libraries(${PROJECT_NAME} PRIVATE aes::aes)
