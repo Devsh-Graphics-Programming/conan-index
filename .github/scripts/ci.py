@@ -54,34 +54,47 @@ if __name__ == "__main__":
                     if platform in available_recipes[name][version]:
                         recipes[name].pop(version)
 
-    # TODO: reorder package create order by dependency
-    # for name in recipes:
-    #     for version in recipes[name]:
-    #         recipe_graph_string = check_output(f"conan graph build-order --order-by=recipe --version {version} ./recipes/{name}/all/ --format=json -b missing", shell=True).decode('UTF-8')
-    #         graph_json = json.loads(recipe_graph_string)
-    #         print(graph_json["order"])
+    # make all recipes known to cache
+    for name in recipes:
+        for version in recipes[name]:
+            check_call(f"conan export --version {version} ./recipes/{name}/all/", shell=True)
+
+    # reorder package create order by dependency
+    recipe_dependency_order = []
+    for name in recipes:
+        for version in recipes[name]:
+            recipe_graph_string = check_output(f"conan graph build-order --order-by=recipe --version {version} ./recipes/{name}/all/ --format=json -b missing", shell=True).decode('UTF-8')
+            graph_json = json.loads(recipe_graph_string)
+            for dep_level in graph_json["order"]:
+                for dep in dep_level:
+                    dep_ref = dep["ref"]
+                    np = dep_ref.split("/")
+                    dep_name = np[0]
+                    dep_version = np[1].split("#")[0]
+                    dep_name_version = (dep_name, dep_version)
+                    if dep_name in recipes and dep_name_version not in recipe_dependency_order:
+                        recipe_dependency_order.append(dep_name_version)
+            name_version = (name, version)
+            if name_version not in recipe_dependency_order:
+                recipe_dependency_order.append(name_version)
 
     # create and upload
-    upload_all = False
-    if 'UPLOAD_ALL' in os.environ and os.environ['UPLOAD_ALL'] == 'true':
-        upload_all = True
-
-    if upload_all:
-        for name in recipes:
-            for version in recipes[name]:
-                package_ref = f"{name}/{version}"
-                print(f"Building recipe: {package_ref}...")
-                check_call(f"conan create --version {version} -s=\"compiler.cppstd={cppstd}\" -tf \"\" -u -b missing ./recipes/{name}/all/", shell=True)
+    for name, version in recipe_dependency_order:
+        package_ref = f"{name}/{version}"
+        print(f"Building recipe: {package_ref}...")
+        check_call(f"conan create --version {version} -s=\"compiler.cppstd={cppstd}\" -tf \"\" -u -b missing ./recipes/{name}/all/", shell=True)
 
     if 'CONAN_UPLOAD_PACKAGES' in os.environ and os.environ['CONAN_UPLOAD_PACKAGES']:
-        for name in recipes:
-            for version in recipes[name]:
-                package_ref = f"{name}/{version}"
-                if upload_all:
-                    print(f"Uploading recipe and package: {package_ref}")
-                    check_call(f"conan upload {package_ref} -r=devsh --confirm --check", shell=True)
-                else:
-                    print(f"Uploading recipe: {package_ref}")
-                    check_call(f"conan upload {package_ref} -r=devsh --confirm --check --only-recipe", shell=True)
+        upload_all = False
+        if 'UPLOAD_ALL' in os.environ and os.environ['UPLOAD_ALL'] == 'true':
+            upload_all = True
+        for name, version in recipe_dependency_order:
+            package_ref = f"{name}/{version}"
+            if upload_all:
+                print(f"Uploading recipe and package: {package_ref}")
+                check_call(f"conan upload {package_ref} -r=devsh --confirm --check", shell=True)
+            else:
+                print(f"Uploading recipe: {package_ref}")
+                check_call(f"conan upload {package_ref} -r=devsh --confirm --check --only-recipe", shell=True)
 
     print("-----Finished-----")
