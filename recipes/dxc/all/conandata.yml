@@ -1,7 +1,7 @@
 sources:
-  "1.9.2609-devsh.2":
-    url: "https://github.com/Devsh-Graphics-Programming/DirectXShaderCompiler/archive/refs/tags/1.9.2609-devsh.2.tar.gz"
-    sha256: "6399ef8d24fd0ccfb03bb281c9532e9852d8cd0b7fa7ba30322637eb302c188d"
+  "1.9.2609-devsh.3":
+    url: "https://github.com/Devsh-Graphics-Programming/DirectXShaderCompiler/archive/refs/tags/1.9.2609-devsh.3.tar.gz"
+    sha256: "21fb19ae7822ec487159abaaec2663a40493df125472eafb73d911faf1d844f0"
 patches:
-  "1.9.2609-devsh.2":
+  "1.9.2609-devsh.3":
     - patch_file: "patches/0001-use-conan-dependencies.patch"
