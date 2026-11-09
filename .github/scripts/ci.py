@@ -41,7 +41,7 @@ if __name__ == "__main__":
 
     platIsWin = os.environ['PLATFORM'] == "windows-latest"
     platform = "Windows" if platIsWin else "Linux"
-    profile = "windows-msvc194-x64-mt" if platIsWin else "linux-clang22-x64"
+    profile = "windows-msvc195-x64-mt" if platIsWin else "linux-clang22-x64"
 
     do_full_rebuild = "full_rebuild" in sys.argv[1:]
     do_full_rebuild = do_full_rebuild or ('CONAN_FULL_REBUILD' in os.environ and os.environ['CONAN_FULL_REBUILD'])
