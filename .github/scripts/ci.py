@@ -82,7 +82,15 @@ if __name__ == "__main__":
     for name, version in recipe_dependency_order:
         package_ref = f"{name}/{version}"
         print(f"Building recipe: {package_ref}...")
-        check_call(f"conan create --version {version} -tf \"\" -u --build=missing -pr:a={profile} ./recipes/{name}/all/", shell=True)
+
+        # TODO: put these options somewhere else to parse
+        options = ""
+        if name == "boost":
+            options = "-o \"boost/*:without_cobalt=True\""
+            if platIsWin:
+                options += " -o \"boost/*:magic_autolink=True\""
+
+        check_call(f"conan create --version {version} -tf \"\" -u --build=missing -pr:a={profile} {options} ./recipes/{name}/all/", shell=True)
 
     if 'CONAN_UPLOAD_PACKAGES' in os.environ and os.environ['CONAN_UPLOAD_PACKAGES']:
         upload_all = False
