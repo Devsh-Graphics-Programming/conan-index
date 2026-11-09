@@ -1,6 +1,6 @@
 --- a/dxc/CMakeLists.txt
 +++ b/dxc/CMakeLists.txt
-@@ -700,8 +700,21 @@
+@@ -700,8 +700,22 @@
  
  add_subdirectory(utils/hct)
  
@@ -8,7 +8,8 @@
 -  add_subdirectory(external) # SPIRV change
 +if (NOT WIN32)
 +  find_package(DirectX-Headers REQUIRED)
-+  set(DIRECTX_HEADER_INCLUDE_DIR ${DirectX-Headers_INCLUDE_DIR})
++  list(GET DirectX-Headers_INCLUDE_DIR 0 DIRECTX_HEADERS_BASE_INCLUDE_DIR)
++  set(DIRECTX_HEADER_INCLUDE_DIR ${DIRECTX_HEADERS_BASE_INCLUDE_DIR})
 +endif (NOT WIN32)
 +
 +if (${ENABLE_SPIRV_CODEGEN})
