@@ -39,7 +39,7 @@ if __name__ == "__main__":
     for package in os.listdir("./recipes"):
         recipes[package] = readYMLForVersions(Path("./recipes") / package)
 
-    platIsWin = os.environ['PLATFORM'] == "windows-latest"
+    platIsWin = "windows" in os.environ['PLATFORM']
     platform = "Windows" if platIsWin else "Linux"
     profile = "windows-msvc195-x64-mt" if platIsWin else "linux-clang22-x64"
 
