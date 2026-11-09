@@ -38,6 +38,13 @@ jobs:
       - name: Checkout
         if: inputs.conan_upload_package
         uses: actions/checkout@v6
+      
+      - name: Checkout conan configs
+        if: inputs.conan_upload_package
+        uses: actions/checkout@v6
+        with:
+          repository: Devsh-Graphics-Programming/conan-config
+          path: conan-config
 
       - name: Check public access
         run: |
@@ -60,4 +67,5 @@ jobs:
         run: |
           conan remote login devsh "$CONAN_LOGIN_USERNAME_DEVSH"
           conan profile detect
+          conan config install ./conan-config/config
           python .github/scripts/ci.py

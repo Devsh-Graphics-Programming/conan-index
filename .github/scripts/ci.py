@@ -41,7 +41,7 @@ if __name__ == "__main__":
 
     platIsWin = os.environ['PLATFORM'] == "windows-latest"
     platform = "Windows" if platIsWin else "Linux"
-    cppstd = "20" if platIsWin else "gnu20"
+    profile = "windows-msvc194-x64-mt" if platIsWin else "linux-clang22-x64"
 
     do_full_rebuild = "full_rebuild" in sys.argv[1:]
     do_full_rebuild = do_full_rebuild or ('CONAN_FULL_REBUILD' in os.environ and os.environ['CONAN_FULL_REBUILD'])
@@ -63,7 +63,7 @@ if __name__ == "__main__":
     recipe_dependency_order = []
     for name in recipes:
         for version in recipes[name]:
-            recipe_graph_string = check_output(f"conan graph build-order --order-by=recipe --version {version} --format=json --build=missing ./recipes/{name}/all/", shell=True).decode('UTF-8')
+            recipe_graph_string = check_output(f"conan graph build-order --order-by=recipe --version {version} --format=json --build=missing -pr:a={profile} ./recipes/{name}/all/", shell=True).decode('UTF-8')
             graph_json = json.loads(recipe_graph_string)
             for dep_level in graph_json["order"]:
                 for dep in dep_level:
@@ -82,7 +82,7 @@ if __name__ == "__main__":
     for name, version in recipe_dependency_order:
         package_ref = f"{name}/{version}"
         print(f"Building recipe: {package_ref}...")
-        check_call(f"conan create --version {version} -s=\"compiler.cppstd={cppstd}\" -tf \"\" -u --build=missing ./recipes/{name}/all/", shell=True)
+        check_call(f"conan create --version {version} -tf \"\" -u --build=missing -pr:a={profile} ./recipes/{name}/all/", shell=True)
 
     if 'CONAN_UPLOAD_PACKAGES' in os.environ and os.environ['CONAN_UPLOAD_PACKAGES']:
         upload_all = False
