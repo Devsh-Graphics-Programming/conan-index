@@ -1,6 +1,18 @@
 --- a/dxc/CMakeLists.txt
 +++ b/dxc/CMakeLists.txt
-@@ -700,8 +700,22 @@
+@@ -665,11 +665,6 @@
+ set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
+ 
+ 
+-# enable warnings as errors for debug build
+-if (MSVC)
+-  SET(CMAKE_CXX_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} /WX")
+-endif (MSVC)
+-
+ include(AddLLVM)
+ include(TableGen)
+ 
+@@ -700,8 +695,22 @@
  
  add_subdirectory(utils/hct)
  
