@@ -45,14 +45,6 @@ if __name__ == "__main__":
 
     do_full_rebuild = "full_rebuild" in sys.argv[1:]
     do_full_rebuild = do_full_rebuild or ('CONAN_FULL_REBUILD' in os.environ and os.environ['CONAN_FULL_REBUILD'])
-    if not do_full_rebuild:
-        # prevent recipes already available on remote being rebuilt
-        available_recipes = getRemoteAvailableRecipes()
-        for name in available_recipes:
-            if name in recipes:
-                for version in available_recipes[name]:
-                    if platform in available_recipes[name][version]:
-                        recipes[name].pop(version)
 
     # make all recipes known to cache
     for name in recipes:
@@ -61,9 +53,10 @@ if __name__ == "__main__":
 
     # reorder package create order by dependency
     recipe_dependency_order = []
+    reduce = "--reduce" if not do_full_rebuild else ""  # only build outdated packages
     for name in recipes:
         for version in recipes[name]:
-            recipe_graph_string = check_output(f"conan graph build-order --order-by=recipe --version {version} --format=json --build=missing -pr:a={profile} ./recipes/{name}/all/", shell=True).decode('UTF-8')
+            recipe_graph_string = check_output(f"conan graph build-order --order-by=recipe --requires={name}/{version} --format=json --build=missing -pr:a={profile} {reduce}", shell=True).decode('UTF-8')
             graph_json = json.loads(recipe_graph_string)
             for dep_level in graph_json["order"]:
                 for dep in dep_level:
@@ -74,9 +67,6 @@ if __name__ == "__main__":
                     dep_name_version = (dep_name, dep_version)
                     if dep_name in recipes and dep_name_version not in recipe_dependency_order:
                         recipe_dependency_order.append(dep_name_version)
-            name_version = (name, version)
-            if name_version not in recipe_dependency_order:
-                recipe_dependency_order.append(name_version)
 
     # create and upload
     for name, version in recipe_dependency_order:
