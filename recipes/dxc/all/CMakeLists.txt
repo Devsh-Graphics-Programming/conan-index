@@ -88,6 +88,7 @@ endif()
 
 include(ExternalProject)
 set(DXC_LIB_DIR "${DXC_BUILD_DIR}/$<CONFIG>/lib")
+set(DXC_BIN_DIR "${DXC_BUILD_DIR}/$<CONFIG>/bin")
 
 ExternalProject_Add(dxc_external
     SOURCE_DIR       "${DXC_ROOT}"
@@ -97,10 +98,10 @@ ExternalProject_Add(dxc_external
                      ${NBL_DXC_CMAKE_OPTIONS}
     BUILD_COMMAND    "${CMAKE_COMMAND}" --build <BINARY_DIR> --target dxcompiler --config $<CONFIG>
     INSTALL_COMMAND  ""
-    BUILD_BYPRODUCTS "${DXC_LIB_DIR}/dxcompiler.lib"
+    BUILD_BYPRODUCTS "${DXC_LIB_DIR}/dxcompiler.lib" "${DXC_BIN_DIR}/dxcompiler.dll"
 )
 
-add_library(dxcompiler STATIC IMPORTED GLOBAL)
+add_library(dxcompiler SHARED IMPORTED GLOBAL)
 set_target_properties(dxcompiler PROPERTIES
     IMPORTED_CONFIGURATIONS             "DEBUG;RELEASE;RELWITHDEBINFO"
     IMPORTED_LOCATION_DEBUG             "${DXC_BUILD_DIR}/Debug/lib/dxcompiler.lib"
@@ -108,6 +109,26 @@ set_target_properties(dxcompiler PROPERTIES
     IMPORTED_LOCATION_RELWITHDEBINFO    "${DXC_BUILD_DIR}/RelWithDebInfo/lib/dxcompiler.lib"
     INTERFACE_INCLUDE_DIRECTORIES       "${DXC_ROOT}/include"
 )
+if (WIN32)
+    set_target_properties(dxcompiler PROPERTIES
+        IMPORTED_CONFIGURATIONS             "DEBUG;RELEASE;RELWITHDEBINFO"
+        IMPORTED_LOCATION_DEBUG             "${DXC_BUILD_DIR}/Debug/bin/dxcompiler.dll"
+        IMPORTED_LOCATION_RELEASE           "${DXC_BUILD_DIR}/Release/bin/dxcompiler.dll"
+        IMPORTED_LOCATION_RELWITHDEBINFO    "${DXC_BUILD_DIR}/RelWithDebInfo/bin/dxcompiler.dll"
+        INTERFACE_INCLUDE_DIRECTORIES       "${DXC_ROOT}/include"
+        IMPORTED_IMPLIB_DEBUG               "${DXC_BUILD_DIR}/Debug/lib/dxcompiler.lib"
+        IMPORTED_IMPLIB_RELEASE             "${DXC_BUILD_DIR}/Release/lib/dxcompiler.lib"
+        IMPORTED_IMPLIB_RELWITHDEBINFO      "${DXC_BUILD_DIR}/RelWithDebInfo/lib/dxcompiler.lib"
+    )
+else()
+    # TODO fix for Linux
+    set_target_properties(dxcompiler PROPERTIES
+        IMPORTED_LOCATION "${DXC_BUILD_DIR}/lib/libdxcompiler${CMAKE_SHARED_LIBRARY_SUFFIX}"
+    )
+endif()
 add_dependencies(dxcompiler dxc_external)
 
-install(FILES $<TARGET_FILE:dxcompiler> DESTINATION lib)
+install(FILES $<TARGET_FILE:dxcompiler> DESTINATION bin)
+if (WIN32)
+    install(FILES $<TARGET_LINKER_FILE:dxcompiler> DESTINATION lib)
+endif()

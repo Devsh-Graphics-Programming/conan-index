@@ -2,7 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import copy, download, get
+from conan.tools.files import copy, get
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
 
 required_conan_version = ">=2.32.0"
@@ -16,22 +16,12 @@ class DxcConan(ConanFile):
     homepage = "https://github.com/Devsh-Graphics-Programming/DirectXShaderCompiler"
     topics = ("dxc", "nabla")
 
-    package_type = "static-library"
+    package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
-    options = {
-        "fPIC": [True, False],
-    }
-    default_options = {
-        "fPIC": True,
-    }
 
     def export_sources(self):
         copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -78,3 +68,4 @@ class DxcConan(ConanFile):
         dxc.libs = ["dxcompiler"]
         dxc.includedirs.append(os.path.join("include", "dxc"))
         dxc.libdirs = ["lib"]
+        dxc.bindirs = ["bin"]
