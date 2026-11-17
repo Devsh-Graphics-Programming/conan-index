@@ -15,6 +15,10 @@ on:
         description: Rebuilds and uploads all packages, even if already on the remote
         type: boolean
         default: false
+      static_runtime:
+        description: Links to the static CRT, Windows only
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -63,6 +67,7 @@ jobs:
           CONAN_UPLOAD_PACKAGES: ${{ inputs.conan_upload_package }}
           UPLOAD_ALL: ${{ inputs.upload_all }}
           CONAN_FULL_REBUILD: ${{ inputs.conan_full_rebuild }}
+          STATIC_RUNTIME: ${{ inputs.static_runtime }}
           PLATFORM: ${{ matrix.os }}
         run: |
           conan remote login devsh "$CONAN_LOGIN_USERNAME_DEVSH"
