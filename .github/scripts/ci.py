@@ -63,7 +63,7 @@ if __name__ == "__main__":
     reduce = "--reduce" if not do_full_rebuild else ""  # only build outdated packages
     for name in recipes:
         for version in recipes[name]:
-            recipe_graph_string = check_output(f"conan graph build-order --order-by=recipe --requires={name}/{version} --format=json --build=missing -pr:h={profile_host} -pr:b={profile_build} --s:a=build_type={build_type} {reduce}", shell=True).decode('UTF-8')
+            recipe_graph_string = check_output(f"conan graph build-order --order-by=recipe --requires={name}/{version} --format=json --build=missing -pr:h={profile_host} -pr:b={profile_build} --s:a=\"build_type={build_type}\" {reduce}", shell=True).decode('UTF-8')
             graph_json = json.loads(recipe_graph_string)
             for dep_level in graph_json["order"]:
                 for dep in dep_level:
@@ -87,7 +87,7 @@ if __name__ == "__main__":
             if platIsWin:
                 options += " -o \"boost/*:magic_autolink=True\""
 
-        check_call(f"conan create --version {version} -tf \"\" -u --build=missing -pr:h={profile_host} -pr:b={profile_build} --s:a=build_type={build_type} {options} ./recipes/{name}/all/", shell=True)
+        check_call(f"conan create --version {version} -tf \"\" -u --build=missing -pr:h={profile_host} -pr:b={profile_build} --s:a=\"build_type={build_type}\" {options} ./recipes/{name}/all/", shell=True)
 
     if 'CONAN_UPLOAD_PACKAGES' in os.environ and os.environ['CONAN_UPLOAD_PACKAGES']:
         upload_all = False
