@@ -33,11 +33,11 @@ jobs:
       fail-fast: false
       matrix:
         build_type: [Debug, Release]
+        os: [windows-2025, ubuntu-26.04]
         include:
           - os: windows-2025
             host_profile: windows-msvc195-x64-md
             build_profile: windows-msvc195-x64-md
-
           - os: ubuntu-26.04
             host_profile: linux-clang22-x64
             build_profile: linux-clang22-x64
