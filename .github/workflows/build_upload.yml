@@ -15,10 +15,6 @@ on:
         description: Rebuilds and uploads all packages, even if already on the remote
         type: boolean
         default: false
-      static_runtime:
-        description: Links to the static CRT, Windows only
-        type: boolean
-        default: false
 
 permissions:
   contents: write
@@ -27,13 +23,24 @@ jobs:
   build-upload:
     name: Packages for ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
     env:
       CONAN_HOME: ${{ github.workspace }}/.conan2
       CONAN_NON_INTERACTIVE: '1'
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2025, ubuntu-26.04]
+        build_type: [Debug, Release]
+        include:
+          - os: windows-2025
+            host_profile: windows-msvc195-x64-md
+            build_profile: windows-msvc195-x64-md
+
+          - os: ubuntu-26.04
+            host_profile: linux-clang22-x64
+            build_profile: linux-clang22-x64
     steps:
       - uses: actions/setup-python@v5
         with:
@@ -67,10 +74,11 @@ jobs:
           CONAN_UPLOAD_PACKAGES: ${{ inputs.conan_upload_package }}
           UPLOAD_ALL: ${{ inputs.upload_all }}
           CONAN_FULL_REBUILD: ${{ inputs.conan_full_rebuild }}
-          STATIC_RUNTIME: ${{ inputs.static_runtime }}
-          PLATFORM: ${{ matrix.os }}
         run: |
           conan remote login devsh "$CONAN_LOGIN_USERNAME_DEVSH"
           conan profile detect
           conan config install ./conan-config/config
-          python .github/scripts/ci.py
+          python .github/scripts/ci.py \
+            --host-profile ${{ matrix.host_profile }} \
+            --build-profile ${{ matrix.build_profile }} \
+            --build-type ${{ matrix.build_type }}

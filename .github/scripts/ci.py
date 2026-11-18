@@ -39,11 +39,16 @@ if __name__ == "__main__":
     for package in os.listdir("./recipes"):
         recipes[package] = readYMLForVersions(Path("./recipes") / package)
 
-    platIsWin = "windows" in os.environ['PLATFORM']
-    platform = "Windows" if platIsWin else "Linux"
-    profile = "windows-msvc195-x64-md" if platIsWin else "linux-clang22-x64"
-    if platIsWin and 'STATIC_RUNTIME' in os.environ and os.environ['STATIC_RUNTIME']:
-        profile = "windows-msvc195-x64-mt"
+    ph_ix = sys.argv.index("--host-profile")
+    profile_host = sys.argv[ph_ix+1]
+
+    pb_ix = sys.argv.index("--build-profile")
+    profile_build = sys.argv[pb_ix+1]
+
+    bt_ix = sys.argv.index("--build-type")
+    build_type = sys.argv[bt_ix+1]
+
+    platIsWin = "windows" in profile_host
 
     do_full_rebuild = "full_rebuild" in sys.argv[1:]
     do_full_rebuild = do_full_rebuild or ('CONAN_FULL_REBUILD' in os.environ and os.environ['CONAN_FULL_REBUILD'])
@@ -58,7 +63,7 @@ if __name__ == "__main__":
     reduce = "--reduce" if not do_full_rebuild else ""  # only build outdated packages
     for name in recipes:
         for version in recipes[name]:
-            recipe_graph_string = check_output(f"conan graph build-order --order-by=recipe --requires={name}/{version} --format=json --build=missing -pr:a={profile} {reduce}", shell=True).decode('UTF-8')
+            recipe_graph_string = check_output(f"conan graph build-order --order-by=recipe --requires={name}/{version} --format=json --build=missing -pr:h={profile_host} -pr:b={profile_build} --s:a=build_type={build_type} {reduce}", shell=True).decode('UTF-8')
             graph_json = json.loads(recipe_graph_string)
             for dep_level in graph_json["order"]:
                 for dep in dep_level:
@@ -82,7 +87,7 @@ if __name__ == "__main__":
             if platIsWin:
                 options += " -o \"boost/*:magic_autolink=True\""
 
-        check_call(f"conan create --version {version} -tf \"\" -u --build=missing -pr:a={profile} {options} ./recipes/{name}/all/", shell=True)
+        check_call(f"conan create --version {version} -tf \"\" -u --build=missing -pr:h={profile_host} -pr:b={profile_build} --s:a=build_type={build_type} {options} ./recipes/{name}/all/", shell=True)
 
     if 'CONAN_UPLOAD_PACKAGES' in os.environ and os.environ['CONAN_UPLOAD_PACKAGES']:
         upload_all = False
